@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--扫描包-->
+    <context:component-scan base-package="com.offcn"></context:component-scan>
+
+    <!--注解驱动-->
+    <!--作用：json转换和响应的时候；转换工厂注册；代替了注解的映射器和适配器；数据校验-->
+    <!--工厂注册-->
+    <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+
+    <!--静态资源的访问，不经过前端控制器，不被url-pattern拦截-->
+    <!--<mvc:resources mapping="/js/**" location="/js/"></mvc:resources>-->
+    <!--<mvc:resources mapping="/imgs/**" location="/imgs/"></mvc:resources>-->
+
+    <!--替代配置-->
+    <mvc:default-servlet-handler></mvc:default-servlet-handler>
+
+    <!--拦截器配置-->
+    <!--复数表示可以配置多道拦截器-->
+    <mvc:interceptors>
+        <!--第一个拦截器-->
+        <mvc:interceptor>
+            <!--path设置拦截哪些请求url-->
+            <mvc:mapping path="/**"/>
+            <bean class="com.offcn.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsps/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--日期转换器工厂-->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <!--把自定义的转换类加载到工厂中-->
+        <property name="converters">
+            <set>
+                <bean class="com.offcn.converter.DateConverter"></bean>
+            </set>
+        </property>
+    </bean>
+
+    <!--上传解析器的配置-->
+    <!--id是固定名称-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--设置限制上传文件的最大大小是多少-->
+        <!--限制上传文件的大小不能大于10MB-->
+        <!--此处的单位是B-->
+        <property name="maxUploadSize" value="10485760"></property>
+    </bean>
+
+    <!--全局的、框架提供的、异常处理中心-->
+<!--    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">-->
+<!--        <property name="defaultErrorView" value="error"></property>-->
+<!--    </bean>-->
+</beans>
